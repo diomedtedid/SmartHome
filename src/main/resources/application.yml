@@ -1,0 +1,32 @@
+server:
+  port: 5076
+
+spring:
+  mandatory-file-encoding: UTF-8
+
+  application:
+    name: SmartHome
+
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+    hibernate:
+      ddl-auto: none
+
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/smarthome
+    username: smarthome
+    password: smarthome
+    driver-class-name: org.postgresql.Driver
+
+---
+spring:
+  profiles: test
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/smarthome-test

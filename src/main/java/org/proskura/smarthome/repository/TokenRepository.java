@@ -5,5 +5,6 @@ import org.proskura.smarthome.domain.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
-    UserEntity findByUser (UserEntity userEntity);
+    TokenEntity findByUser_Id (Long userId);
+    TokenEntity findByToken (String token);
 }

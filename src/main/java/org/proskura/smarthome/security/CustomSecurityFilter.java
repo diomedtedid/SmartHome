@@ -19,6 +19,7 @@ import java.util.Enumeration;
 import java.util.Objects;
 
 public class CustomSecurityFilter extends GenericFilterBean {
+    private static final String HEADER = "auth";
     private final SecurityService securityService;
 
     public CustomSecurityFilter(SecurityService securityService) {
@@ -38,6 +39,6 @@ public class CustomSecurityFilter extends GenericFilterBean {
 
     private String getTokenFromRequest (ServletRequest servletRequest) {
         HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequest;
-        return httpServletRequest.getHeader("header");
+        return httpServletRequest.getHeader(HEADER);
     }
 }

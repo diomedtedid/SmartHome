@@ -19,6 +19,7 @@ public class TokenEntity {
     @Enumerated(STRING)
     private TokenType type;
     private LocalDateTime expirationDate;
+    private String token;
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)

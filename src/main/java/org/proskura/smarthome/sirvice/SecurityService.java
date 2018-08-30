@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface SecurityService {
     Optional<Authentication> getAuthFromToken(String token);
+    String getToken (String username, String password);
 }

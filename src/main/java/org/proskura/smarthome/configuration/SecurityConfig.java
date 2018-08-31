@@ -34,17 +34,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 //добавляем наш кастомный фильтр перед всеми спринговыми секьюрными фильтрами
-                //.addFilterAfter(getFilter(), LogoutFilter.class);
                 .addFilterAfter(getFilter(), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                .antMatchers(HttpMethod.GET, "/").permitAll()
-                .anyRequest().authenticated()
-                .and();
-                //добавляем наш кастомный фильтр перед всеми спринговыми секьюрными фильтрами
-//                .addFilterAfter(getFilter(), LogoutFilter.class);
+                .anyRequest().authenticated();
     }
 
     //Cетим нашу имплементацию UserDetailsService и кодировщик паролей в AuthenticationManagerBuilder

@@ -5,16 +5,14 @@ import org.proskura.smarthome.domain.TokenEntity;
 import org.proskura.smarthome.domain.TokenType;
 import org.proskura.smarthome.repository.CredentialRepository;
 import org.proskura.smarthome.repository.TokenRepository;
+import org.proskura.smarthome.security.AuthenticationToken;
 import org.proskura.smarthome.security.Principal;
 import org.proskura.smarthome.sirvice.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,7 +32,7 @@ public class SecurityServiceImpl implements SecurityService {
     public Optional<Authentication> getAuthFromToken(String token) {
         TokenEntity tokenEntity = tokenRepository.findByToken(token);
         Principal principal = (Principal) userDetailsService.loadUserByUsername(tokenEntity.getUser().getUsername());
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+        Authentication authentication = new AuthenticationToken(principal, tokenEntity.getToken());
         return Optional.ofNullable(authentication);
 
     }

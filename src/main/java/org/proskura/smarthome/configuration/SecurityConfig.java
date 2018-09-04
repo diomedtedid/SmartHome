@@ -1,11 +1,13 @@
 package org.proskura.smarthome.configuration;
 
-import org.proskura.smarthome.security.CustomSecurityFilter;
-import org.proskura.smarthome.sirvice.SecurityService;
+import org.proskura.smarthome.security.TokenAuthFilter;
+import org.proskura.smarthome.security.TokenAuthProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,19 +24,24 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.Filter;
 
+import java.util.Collections;
+
+import static java.util.Arrays.asList;
+
 @Configuration
 @EnableWebSecurity //отключает конфигурирование из коробки
 //Мы наследуем наш класс конфигурации от WebSecurityConfigurerAdapter, чтобы не нужно было конфигурировать все
 //а только конфигурировать (переписывать) те настройки, которые нам нужны
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired SecurityService securityService;
+    @Autowired TokenAuthProvider tokenAuthProvider;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 //добавляем наш кастомный фильтр перед всеми спринговыми секьюрными фильтрами
-                .addFilterAfter(getFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(tokenAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -42,22 +49,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();
     }
 
-    //Cетим нашу имплементацию UserDetailsService и кодировщик паролей в AuthenticationManagerBuilder
-    protected void configure(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(getPasswordEncoder());
-    }
-
-
     @Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(Collections.singletonList(tokenAuthProvider));
     }
+
 
     //Создаем фильтр как отдельный бин, чтобы он присуствовал с Спринг контексте.
     // Чтобы в дальнейшем можно было с ним работать и кастомизировать
     @Bean
-    public CustomSecurityFilter getFilter() {
-        return new CustomSecurityFilter(securityService);
+    public TokenAuthFilter tokenAuthFilter () throws Exception {
+        TokenAuthFilter tokenAuthFilter = new TokenAuthFilter(authenticationManager());
+        tokenAuthFilter.setAuthenticationManager(authenticationManager());
+        tokenAuthFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {});
+        return tokenAuthFilter;
     }
 
 }

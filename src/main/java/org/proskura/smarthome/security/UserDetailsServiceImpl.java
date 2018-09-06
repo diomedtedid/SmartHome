@@ -1,9 +1,8 @@
 package org.proskura.smarthome.security;
 
 import org.proskura.smarthome.domain.CredentialsEntity;
-import org.proskura.smarthome.domain.UserEntity;
-import org.proskura.smarthome.domain.UserRole;
 import org.proskura.smarthome.repository.CredentialRepository;
+import org.proskura.smarthome.security.token.TokenPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +11,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 
-//Обязательный класс, который создает классы имплементированные от UserDetails. В нашем случае Principal
+//Обязательный класс, который создает классы имплементированные от UserDetails. В нашем случае TokenPrincipal
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     private static final Logger logger = LoggerFactory.getLogger(UserDetailsService.class);
@@ -28,15 +26,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         CredentialsEntity credential = credentialRepository.findByUserEntity_Username(s)
                 .orElseThrow(() -> new UsernameNotFoundException("User not Found"));
 
-        Principal principal = new Principal();
-        principal.setId(credential.getUserEntity().getId());
-        principal.setUsername(credential.getUserEntity().getUsername());
-        principal.setRole(credential.getUserEntity().getRole());
-        principal.setPassword(credential.getPassword());
+        TokenPrincipal tokenPrincipal = new TokenPrincipal();
+        tokenPrincipal.setId(credential.getUserEntity().getId());
+        tokenPrincipal.setUsername(credential.getUserEntity().getUsername());
+        tokenPrincipal.setRole(credential.getUserEntity().getRole());
+        tokenPrincipal.setPassword(credential.getPassword());
 
-        logger.info(String.format("User with name %s is logged at %s", principal.getUsername(), LocalDateTime.now()));
+        logger.info(String.format("User with name %s is logged at %s", tokenPrincipal.getUsername(), LocalDateTime.now()));
 
-        return principal;
+        return tokenPrincipal;
     }
 
 }

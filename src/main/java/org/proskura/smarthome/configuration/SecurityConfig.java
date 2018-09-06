@@ -1,32 +1,23 @@
 package org.proskura.smarthome.configuration;
 
-import org.proskura.smarthome.security.TokenAuthFilter;
-import org.proskura.smarthome.security.TokenAuthProvider;
+import org.proskura.smarthome.security.jwt.JwtAuthFilter;
+import org.proskura.smarthome.security.jwt.JwtAuthProvider;
+import org.proskura.smarthome.security.token.TokenAuthFilter;
+import org.proskura.smarthome.security.token.TokenAuthProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
-import org.springframework.web.filter.GenericFilterBean;
 
-import javax.servlet.Filter;
-
+import java.util.Arrays;
 import java.util.Collections;
-
-import static java.util.Arrays.asList;
 
 @Configuration
 @EnableWebSecurity //отключает конфигурирование из коробки
@@ -35,6 +26,8 @@ import static java.util.Arrays.asList;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired TokenAuthProvider tokenAuthProvider;
+    @Autowired
+    JwtAuthProvider jwtAuthProvider;
 
 
     @Override
@@ -42,7 +35,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 //добавляем наш кастомный фильтр перед всеми спринговыми секьюрными фильтрами
                 .addFilterBefore(tokenAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
@@ -51,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public AuthenticationManager authenticationManager() {
-        return new ProviderManager(Collections.singletonList(tokenAuthProvider));
+        return new ProviderManager(Arrays.asList(tokenAuthProvider, jwtAuthProvider));
     }
 
 
@@ -63,6 +59,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         tokenAuthFilter.setAuthenticationManager(authenticationManager());
         tokenAuthFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {});
         return tokenAuthFilter;
+    }
+
+    @Bean
+    public JwtAuthFilter jwtAuthFilter () {
+        JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(authenticationManager());
+        jwtAuthFilter.setAuthenticationSuccessHandler((request, response, authentication) -> {});
+        return jwtAuthFilter;
     }
 
 }

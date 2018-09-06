@@ -1,15 +1,12 @@
-package org.proskura.smarthome.security;
+package org.proskura.smarthome.security.token;
 
 import org.proskura.smarthome.domain.TokenEntity;
-import org.proskura.smarthome.repository.CredentialRepository;
 import org.proskura.smarthome.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.token.TokenService;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -32,20 +29,15 @@ public class TokenAuthProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         AuthorisationToken auth = (AuthorisationToken) authentication;
         TokenEntity tokenEntity = tokenRepository.findByToken(auth.getToken());
-        Principal principal = (Principal) userDetailsService.loadUserByUsername(tokenEntity.getUser().getUsername());
+        TokenPrincipal tokenPrincipal = (TokenPrincipal) userDetailsService.loadUserByUsername(tokenEntity.getUser().getUsername());
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(tokenPrincipal, null, tokenPrincipal.getAuthorities());
 
         return authenticationToken;
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        boolean isSupports = false;
-
-        if (authentication.isAssignableFrom(AuthorisationToken.class)) {
-            isSupports = true;
-        }
-        return isSupports;
+        return AuthorisationToken.class.isAssignableFrom(authentication);
     }
 }

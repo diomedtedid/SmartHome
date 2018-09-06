@@ -1,4 +1,4 @@
-package org.proskura.smarthome.security;
+package org.proskura.smarthome.security.token;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import java.util.Collections;
 
 
 @Data
-public class Principal implements UserDetails {
+public class TokenPrincipal implements UserDetails {
     private Long id;
     private String username;
     private UserRole role;

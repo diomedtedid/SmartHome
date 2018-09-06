@@ -24,6 +24,10 @@ spring:
     password: smarthome
     driver-class-name: org.postgresql.Driver
 
+jwt:
+  token:
+    secret: huiGAVNOiMuravey
+
 ---
 spring:
   profiles: test

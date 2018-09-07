@@ -14,4 +14,5 @@ public interface AuthService {
     }
 
     String generateAccessToken (UsernamePasswordDto usernamePassword);
+    String generateDeviceToken ();
 }

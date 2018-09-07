@@ -16,9 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.proskura.smarthome.security.SecurityConstant.JWT_TOKEN_PREFIX;
+
 public class JwtAuthFilter extends AbstractAuthenticationProcessingFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthFilter.class);
-    public static final String AUTHORIZATION_TYPE = "Jwt";
+
 
     public JwtAuthFilter(@Autowired AuthenticationManager authenticationManager) {
         super("/**");
@@ -31,7 +33,7 @@ public class JwtAuthFilter extends AbstractAuthenticationProcessingFilter {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         return super.requiresAuthentication(request, response)
-                && StringUtils.startsWithIgnoreCase(authHeader, AUTHORIZATION_TYPE);
+                && StringUtils.startsWithIgnoreCase(authHeader, JWT_TOKEN_PREFIX);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class JwtAuthFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     private String extractToken(String authHeader) {
-        return authHeader.substring(AUTHORIZATION_TYPE.length() + 1);
+        return authHeader.substring(JWT_TOKEN_PREFIX.length() + 1);
     }
 
     /**

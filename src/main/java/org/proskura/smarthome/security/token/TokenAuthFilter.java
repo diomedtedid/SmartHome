@@ -17,10 +17,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.proskura.smarthome.security.SecurityConstant.ACCESS_TOKEN_PREFIX;
+
 @Component
 public class TokenAuthFilter extends AbstractAuthenticationProcessingFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenAuthFilter.class);
-    public static final String AUTHORIZATION_TYPE = "Bearer";
+
 
     public TokenAuthFilter(@Autowired AuthenticationManager authenticationManager) {
         super("/**");
@@ -33,7 +35,7 @@ public class TokenAuthFilter extends AbstractAuthenticationProcessingFilter {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         boolean a = super.requiresAuthentication(request, response);
-        boolean b = StringUtils.startsWithIgnoreCase(authHeader, AUTHORIZATION_TYPE);
+        boolean b = StringUtils.startsWithIgnoreCase(authHeader, ACCESS_TOKEN_PREFIX);
         return a && b;
     }
 
@@ -72,7 +74,7 @@ public class TokenAuthFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     private String extractToken(String authHeader) {
-        return authHeader.substring(AUTHORIZATION_TYPE.length() + 1);
+        return authHeader.substring(ACCESS_TOKEN_PREFIX.length() + 1);
     }
 
 }

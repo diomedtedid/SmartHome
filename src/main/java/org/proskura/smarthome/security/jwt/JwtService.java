@@ -12,13 +12,10 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
-
 @Service
 public class JwtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtService.class);
-    public static final String ID = "id";
+    public static final String ID = "deviceId";
     private final byte[] secret;
 
     public JwtService(@Value("${jwt.token.secret}") byte[] secret) {
@@ -42,7 +39,7 @@ public class JwtService {
 
 
         DevicePrincipal devicePrincipal = new DevicePrincipal();
-        devicePrincipal.setId(id);
+        devicePrincipal.setDeviceId(id);
         devicePrincipal.setRole(role);
         devicePrincipal.setUnits(Collections.EMPTY_SET);
 

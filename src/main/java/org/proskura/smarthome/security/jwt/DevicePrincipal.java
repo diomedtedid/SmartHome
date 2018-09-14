@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Data
 public class DevicePrincipal implements UserDetails{
-    private String id;
+    private String deviceId;
     private UserRole role;
     private Set<String> units;
 
@@ -27,7 +27,7 @@ public class DevicePrincipal implements UserDetails{
 
     @Override
     public String getUsername() {
-        return this.id;
+        return this.deviceId;
     }
 
     @Override

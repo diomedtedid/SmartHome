@@ -7,21 +7,22 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-import static javax.persistence.EnumType.STRING;
-
 @Entity
+@Table(name = "unit_state")
 @Data
-@Table(name = "token")
-public class TokenEntity {
+public class UnitStateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Enumerated(STRING)
-    private TokenType type;
-    private LocalDateTime expirationDate;
-    private String token;
+
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id", referencedColumnName = "deviceId", nullable = false)
-    private UserEntity user;
+    @JoinColumn(name = "unit_id", referencedColumnName = "deviceId", nullable = false)
+    private UnitEntity unit;
+    @Column
+    private String value;
+    @Column
+    private String action;
+    @Column
+    private LocalDateTime time;
 }

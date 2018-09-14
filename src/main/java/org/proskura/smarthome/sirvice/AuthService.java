@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Map;
 
 public interface AuthService {
     default UserDetails getAuthPrincipal() {
@@ -14,5 +15,5 @@ public interface AuthService {
     }
 
     String generateAccessToken (UsernamePasswordDto usernamePassword);
-    String generateDeviceToken ();
+    String generateDeviceToken (Map<String, Object> body);
 }

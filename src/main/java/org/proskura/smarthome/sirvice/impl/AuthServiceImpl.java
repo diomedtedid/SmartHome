@@ -6,11 +6,14 @@ import org.proskura.smarthome.domain.UserEntity;
 import org.proskura.smarthome.dto.UsernamePasswordDto;
 import org.proskura.smarthome.repository.CredentialRepository;
 import org.proskura.smarthome.sirvice.AuthService;
+import org.proskura.smarthome.sirvice.DeviceService;
 import org.proskura.smarthome.sirvice.TokenService;
 import org.proskura.smarthome.sirvice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 
 @Service
@@ -19,6 +22,8 @@ public class AuthServiceImpl implements AuthService {
     private CredentialRepository credentialRepository;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private DeviceService deviceService;
 
 
     @Override
@@ -36,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String generateDeviceToken() {
+    public String generateDeviceToken(Map<String, Object> body) {
         return tokenService.createJwtToken();
     }
 

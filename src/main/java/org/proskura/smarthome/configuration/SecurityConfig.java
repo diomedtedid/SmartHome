@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/login", "/auth/device").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/login", "/device").permitAll()
                 .anyRequest().authenticated();
     }
 

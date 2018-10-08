@@ -23,7 +23,7 @@ public class JwtAuthFilter extends AbstractAuthenticationProcessingFilter {
 
 
     public JwtAuthFilter(@Autowired AuthenticationManager authenticationManager) {
-        super("/**");
+        super("/device");
         setAuthenticationManager(authenticationManager);
     }
 
@@ -47,8 +47,6 @@ public class JwtAuthFilter extends AbstractAuthenticationProcessingFilter {
             JwtAuthorisationToken authRequest = JwtAuthorisationToken.of(token);
             Authentication authResult = getAuthenticationManager()
                     .authenticate(authRequest);
-
-            LOGGER.debug("Jwt Authentication success: " + authResult);
 
             return authResult;
         } catch (AuthenticationException e) {

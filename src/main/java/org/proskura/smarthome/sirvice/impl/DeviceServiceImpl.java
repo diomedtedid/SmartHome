@@ -76,7 +76,7 @@ public class DeviceServiceImpl implements DeviceService{
 
                 UnitStateEntity unitState = new UnitStateEntity();
                 unitState.setUnit(unit);
-                unitState.setValue(item.getValue().toString());
+                unitState.setStateValue(item.getValue().toString());
                 unitState.setTime(LocalDateTime.now());
 
                 return unitState;

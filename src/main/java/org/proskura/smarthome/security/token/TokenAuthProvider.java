@@ -3,6 +3,7 @@ package org.proskura.smarthome.security.token;
 import org.proskura.smarthome.domain.TokenEntity;
 import org.proskura.smarthome.repository.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,17 +15,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class TokenAuthProvider implements AuthenticationProvider {
 
+    @Autowired
     private TokenRepository tokenRepository;
-
+    @Qualifier("userDetailsServiceImpl")
+    @Autowired
     private UserDetailsService userDetailsService;
-
-    public TokenAuthProvider(
-            @Autowired TokenRepository tokenRepository,
-            @Autowired UserDetailsService userDetailsService) {
-
-        this.tokenRepository = tokenRepository;
-        this.userDetailsService = userDetailsService;
-    }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

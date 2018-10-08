@@ -24,13 +24,17 @@ spring:
     password: smarthome
     driver-class-name: org.postgresql.Driver
 
+  flyway:
+      locations: classpath:db/migration
+      baseline-on-migrate: true
+
 jwt:
   token:
     secret: huiGAVNOiMuravey
 
 ---
-spring:
-  profiles: test
-
-  datasource:
-    url: jdbc:postgresql://localhost:5433/smarthome-test
+#spring:
+#  profiles: test
+#
+#  datasource:
+#    url: jdbc:postgresql://localhost:5433/smarthome-test

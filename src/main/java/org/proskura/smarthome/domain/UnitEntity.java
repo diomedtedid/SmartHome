@@ -13,11 +13,13 @@ public class UnitEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String unitName;
+
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "device_id", referencedColumnName = "deviceId", nullable = false)
+    @JoinColumn(name = "device_id", referencedColumnName = "id")
     private DeviceEntity device;
 
 }

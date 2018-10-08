@@ -17,12 +17,15 @@ public class UnitStateEntity {
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "unit_id", referencedColumnName = "deviceId", nullable = false)
+    @JoinColumn(name = "unit_id", referencedColumnName = "id", nullable = false)
     private UnitEntity unit;
-    @Column
-    private String value;
-    @Column
-    private String action;
-    @Column
+
+    @Column (name = "state_value")
+    private String stateValue;
+
+    @Column (name = "action_value")
+    private String actionValue;
+
+    @Column (name = "time")
     private LocalDateTime time;
 }

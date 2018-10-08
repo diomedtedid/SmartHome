@@ -15,7 +15,6 @@ public class DeviceController {
     @Autowired
     private DeviceService deviceService;
 
-    @PreAuthorize("hasAnyRole('DEVICE')")
     @PostMapping
     public ResponseEntity<String> postDeviceData (@RequestParam(required = false) Map<String, Object> body) {
         String data = deviceService.updateDeviceData(body);

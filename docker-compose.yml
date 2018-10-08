@@ -1,0 +1,30 @@
+version: '2.0'
+
+services:
+
+  smart-home:
+    container_name: smart-home
+    build: ./
+    ports:
+      - "8080:5076"
+    volumes:
+      - /:/app
+    depends_on:
+      - smart-home-postgres
+    restart: always
+    environment:
+      SPRING_APPLICATION_JSON: '{"spring": {"datasource": {"url": "jdbc:postgresql://smart-home-postgres:5434/smarthome", "username": "smarthome", "password": "smarthome"}}}'
+
+  smart-home-postgres:
+    container_name: smart-home-postgres
+    image: postgres:10.5
+    ports:
+      - "5432:5434"
+    volumes:
+      - ./devops/services/postgres/data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: smarthome
+      POSTGRES_PASSWORD: smarthome
+      POSTGRES_DB: smarthome
+

@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.proskura.smarthome.security.SecurityConstant.JWT_TOKEN_PREFIX;
 
@@ -32,27 +33,25 @@ public class JwtAuthFilter extends AbstractAuthenticationProcessingFilter {
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        return super.requiresAuthentication(request, response)
-                && StringUtils.startsWithIgnoreCase(authHeader, JWT_TOKEN_PREFIX);
+        return super.requiresAuthentication(request, response);
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.isEmpty(authHeader)) {
+            authHeader = "anonymous";
+        }
         LOGGER.info("Authentication Authorization header extracted '{}'", authHeader);
 
         String token = extractToken(authHeader);
 
-        try {
-            JwtAuthorisationToken authRequest = JwtAuthorisationToken.of(token);
-            Authentication authResult = getAuthenticationManager()
+        JwtAuthorisationToken authRequest = JwtAuthorisationToken.of(token);
+        Authentication authResult = getAuthenticationManager()
                     .authenticate(authRequest);
 
-            return authResult;
-        } catch (AuthenticationException e) {
-            LOGGER.debug("Jwt Authentication failure: " + e.getMessage());
-            throw e;
-        }
+        return authResult;
+
         
     }
 

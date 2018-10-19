@@ -1,9 +1,7 @@
 package org.proskura.smarthome.security.token;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.proskura.smarthome.domain.UserRole;
 import org.springframework.security.core.userdetails.UserDetails;
 

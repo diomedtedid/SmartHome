@@ -1,6 +1,7 @@
 package org.proskura.smarthome.security.jwt;
 
 import lombok.Data;
+import org.proskura.smarthome.domain.DeviceStatusEnum;
 import org.proskura.smarthome.domain.UserRole;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,6 +14,7 @@ public class DevicePrincipal implements UserDetails{
     private String deviceId;
     private UserRole role;
     private Set<String> units;
+    private DeviceStatusEnum deviceStatus;
 
 
     @Override

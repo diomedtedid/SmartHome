@@ -1,8 +1,6 @@
 package org.proskura.smarthome.sirvice.impl;
 
-import org.proskura.smarthome.domain.TokenEntity;
-import org.proskura.smarthome.domain.TokenType;
-import org.proskura.smarthome.domain.UserEntity;
+import org.proskura.smarthome.domain.*;
 import org.proskura.smarthome.repository.TokenRepository;
 import org.proskura.smarthome.security.jwt.JwtService;
 import org.proskura.smarthome.sirvice.TokenService;
@@ -11,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -37,9 +36,9 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public String createJwtToken() {
+    public String createJwtToken(DeviceEntity device) {
         Map<String, Object> data = new HashMap<>();
-        data.put("id", "someId");
+        data.put("id", device.getDeviceId());
         data.put("role", "DEVICE");
 
         return jwtService.generateToken(data);

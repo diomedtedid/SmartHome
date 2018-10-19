@@ -1,6 +1,7 @@
 package org.proskura.smarthome.sirvice.impl;
 
 import org.proskura.smarthome.domain.DeviceEntity;
+import org.proskura.smarthome.domain.DeviceStatusEnum;
 import org.proskura.smarthome.domain.UnitEntity;
 import org.proskura.smarthome.domain.UnitStateEntity;
 import org.proskura.smarthome.repository.DeviceRepository;
@@ -44,11 +45,19 @@ public class DeviceServiceImpl implements DeviceService{
     @Override
     @Transactional
     public List<UnitEntity> createDeviceWithUnits(Map<String, Object> registrationData) {
-        DeviceEntity deviceEntity = deviceRepository.save(getDeviceFromRegistrationData (registrationData));
+        DeviceEntity deviceFromRegistrationData = getDeviceFromRegistrationData(registrationData);
+        deviceFromRegistrationData.setDeviceStatus(DeviceStatusEnum.NOT_PERMITTED);
+
+        DeviceEntity deviceEntity = deviceRepository.save(deviceFromRegistrationData);
         List<UnitEntity> unitEntityList = getUnitsFromRegistrationData(registrationData);
         unitEntityList.forEach(unitEntity -> unitEntity.setDevice(deviceEntity));
 
         return unitService.createUnit(unitEntityList);
+    }
+
+    @Override
+    public DeviceEntity getDeviceByDeviceId (String deviceId) {
+        return deviceRepository.findByDeviceId(deviceId).orElse(null);
     }
 
     private DeviceEntity getDeviceFromRegistrationData (Map<String, Object> registrationData) {

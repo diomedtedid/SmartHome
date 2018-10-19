@@ -1,5 +1,7 @@
 server:
   port: 5076
+  servlet:
+      context-path: /api
 
 spring:
   mandatory-file-encoding: UTF-8

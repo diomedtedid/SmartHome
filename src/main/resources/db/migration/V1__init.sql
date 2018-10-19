@@ -32,7 +32,8 @@ CREATE TABLE  user_token
 create table device
 (
   id                      bigserial not null,
-  device_id               varchar(100),
+  device_id               varchar(100) NOT NULL,
+  device_status           varchar (50) NOT NULL,
 
   primary key (id)
 );

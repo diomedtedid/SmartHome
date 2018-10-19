@@ -21,7 +21,7 @@ public class SecurityConfigTest {
     @Test
     public void someTest() {
         Map<String, Object> data = new HashMap<>();
-        data.put("id", "someId");
+        data.put("deviceId", "someId");
         data.put("role", "DEVICE");
         String token = jwtService.generateToken(data);
         System.out.println();

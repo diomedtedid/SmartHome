@@ -17,7 +17,7 @@ public class UnitStateServiceImpl implements UnitStateService{
 
     @Override
     public List<UnitStateEntity> saveUnitState(List<UnitStateEntity> unitStates) {
-        return unitStates.stream().map(this::saveUnitState).collect(Collectors.toList());
+        return unitStateRepository.saveAll(unitStates);
     }
 
     @Override

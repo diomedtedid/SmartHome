@@ -31,7 +31,6 @@ public class AuthController {
 
     @PostMapping("/device")
     public ResponseEntity<Void> registerDevice (@RequestParam Map<String, Object> body) {
-        deviceService.createDeviceWithUnits(body);
         String jwtToken = authService.generateDeviceToken(body);
         return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, JWT_TOKEN_PREFIX + jwtToken).build();
     }

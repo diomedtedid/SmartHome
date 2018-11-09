@@ -43,11 +43,9 @@ public class AuthServiceImpl implements AuthService {
         String jwtToken = "";
 
         DeviceEntity device = deviceService.getDeviceByDeviceId(body.get("deviceId").toString());
-        if (Objects.isNull(device)) {
-            deviceService.createDeviceWithUnits(body);
-        } else if (device.getDeviceStatus().equals(DeviceStatusEnum.SECURED)) {
-            jwtToken = tokenService.createJwtToken(device);
-        }
+
+        jwtToken = tokenService.createJwtToken(device);
+
         return jwtToken;
     }
 

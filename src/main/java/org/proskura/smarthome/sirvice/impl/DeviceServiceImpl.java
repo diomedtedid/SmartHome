@@ -6,10 +6,7 @@ import org.proskura.smarthome.domain.UnitEntity;
 import org.proskura.smarthome.domain.UnitStateEntity;
 import org.proskura.smarthome.repository.DeviceRepository;
 import org.proskura.smarthome.security.jwt.DevicePrincipal;
-import org.proskura.smarthome.sirvice.AuthService;
-import org.proskura.smarthome.sirvice.DeviceService;
-import org.proskura.smarthome.sirvice.MessageService;
-import org.proskura.smarthome.sirvice.UnitService;
+import org.proskura.smarthome.sirvice.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +14,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,47 +28,81 @@ public class DeviceServiceImpl implements DeviceService{
     @Autowired
     private UnitService unitService;
     @Autowired
+    private UnitStateService unitStateService;
+    @Autowired
     private DeviceRepository deviceRepository;
 
 
     @Override
-    public String updateDeviceData(Map<String, Object> data) {
-        DevicePrincipal principal = (DevicePrincipal)authService.getAuthPrincipal();
-        DeviceEntity device = deviceRepository.findByDeviceId(principal.getDeviceId()).get();
-        Set<UnitStateEntity> unitStateSet = parseDeviceRequest(data, device);
+    public String setDataFromDevice(Map<String, Object> data) {
+//        DevicePrincipal principal = (DevicePrincipal)authService.getAuthPrincipal();
+//        DeviceEntity device;
+//        if (principal.getDeviceId().equals("anonymous")) {
+//            DeviceEntity deviceFromRequest = getDeviceFromRequest(data);
+//            device =  deviceRepository.findByDeviceId(deviceFromRequest.getDeviceId()).orElseGet(() -> deviceRepository.save(deviceFromRequest));
+//        } else {
+//            device = deviceRepository.findByDeviceId(principal.getDeviceId()).orElseThrow(() -> new RuntimeException("Device from token not present in DB"));
+//        }
+//
+//
+//        List<UnitEntity> units = getUnitsFromRequest(data);
+//        for (UnitEntity unit : units) {
+//            unit.setDevice(device);
+//        }
+
+        DeviceEntity requestDevice = getDeviceFromRequest(data);
+        DeviceEntity device = deviceRepository.findByDeviceId(requestDevice.getDeviceId()).orElseGet(() -> deviceRepository.save(requestDevice));
+        List<UnitEntity> unitsFromRequest = getUnitsFromRequest(data);
+        unitsFromRequest.forEach(unit -> unit.setDevice(device));
+        List<UnitEntity> units = unitService.getAllUnitsByDevice(device);
+        Map<String, UnitEntity> unitsMap = units
+                .stream()
+                .collect(Collectors.toMap(UnitEntity::getUnitName, unit -> unit));
+
+
+
+        List<UnitEntity> newUnits = unitsFromRequest.stream().filter(unit -> !unitsMap.containsKey(unit.getUnitName())).collect(Collectors.toList());
+
+        units.addAll(unitService.createUnit(newUnits));
+
+        unitStateService.saveUnitState(getNewUnitStates(data, units));
+
+
+
+
+
 
         return messageService.getDeviceAnswer(device);
     }
 
-    @Override
     @Transactional
     public List<UnitEntity> createDeviceWithUnits(Map<String, Object> registrationData) {
-        DeviceEntity deviceFromRegistrationData = getDeviceFromRegistrationData(registrationData);
+        DeviceEntity deviceFromRegistrationData = getDeviceFromRequest(registrationData);
         deviceFromRegistrationData.setDeviceStatus(DeviceStatusEnum.NOT_PERMITTED);
 
         DeviceEntity deviceEntity = deviceRepository.save(deviceFromRegistrationData);
-        List<UnitEntity> unitEntityList = getUnitsFromRegistrationData(registrationData);
+        List<UnitEntity> unitEntityList = getUnitsFromRequest(registrationData);
         unitEntityList.forEach(unitEntity -> unitEntity.setDevice(deviceEntity));
 
         return unitService.createUnit(unitEntityList);
     }
 
-    @Override
     public DeviceEntity getDeviceByDeviceId (String deviceId) {
         return deviceRepository.findByDeviceId(deviceId).orElse(null);
     }
 
-    private DeviceEntity getDeviceFromRegistrationData (Map<String, Object> registrationData) {
+    private DeviceEntity getDeviceFromRequest(Map<String, Object> registrationData) {
         DeviceEntity deviceEntity = new DeviceEntity();
         deviceEntity.setDeviceId(registrationData.get(DEVICE_ID).toString());
+        deviceEntity.setDeviceStatus(DeviceStatusEnum.NOT_PERMITTED);
         return deviceEntity;
     }
 
 
 
-    private List<UnitEntity> getUnitsFromRegistrationData (Map<String, Object> registrationData) {
+    private List<UnitEntity> getUnitsFromRequest(Map<String, Object> requestData) {
 
-        return registrationData.entrySet().stream().filter(item -> !item.getKey().equals(DEVICE_ID)).map(unit -> {
+        return requestData.entrySet().stream().filter(item -> !item.getKey().equals(DEVICE_ID)).map(unit -> {
             UnitEntity unitEntity = new UnitEntity();
             unitEntity.setUnitName(unit.getKey());
 
@@ -78,17 +110,13 @@ public class DeviceServiceImpl implements DeviceService{
         }).collect(Collectors.toList());
     }
 
-    private Set<UnitStateEntity> parseDeviceRequest(Map<String, Object> data, DeviceEntity device) {
-
-         return data.entrySet().stream().map(item -> {
-                UnitEntity unit = unitService.getUnitByNameAndDevice(item.getKey(), device);
-
-                UnitStateEntity unitState = new UnitStateEntity();
-                unitState.setUnit(unit);
-                unitState.setStateValue(item.getValue().toString());
-                unitState.setTime(LocalDateTime.now());
-
-                return unitState;
-            }).collect(Collectors.toSet());
+    private List<UnitStateEntity> getNewUnitStates (Map<String, Object> data, List<UnitEntity> deviceUnits) {
+        return deviceUnits.stream().map(unitEntity -> {
+            UnitStateEntity unitState = new UnitStateEntity();
+            unitState.setUnit(unitEntity);
+            unitState.setStateValue(data.get(unitEntity.getUnitName()).toString());
+            unitState.setTime(LocalDateTime.now());
+            return unitState;
+        }).collect(Collectors.toList());
     }
 }
